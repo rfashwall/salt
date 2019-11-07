@@ -1741,6 +1741,77 @@ class Keys(LowDataAdapter):
 
         fileobj.seek(0)
         return fileobj
+    
+    def DELETE(self, mid=None):
+        '''
+        Delete keys of a specific minion
+
+        .. versionadded:: 2014.7.0
+
+        .. http:delete:: /keys/(mid)
+
+            List all keys or show a specific key
+
+            :reqheader X-Auth-Token: |req_token|
+            :reqheader Accept: |req_accept|
+
+            :status 200: |200|
+            :status 401: |401|
+            :status 406: |406|
+
+        **Example request:**
+
+        .. code-block:: bash
+
+            curl -i localhost:8000/keys
+
+        .. code-block:: text
+
+            DELETE /keys HTTP/1.1
+            Host: localhost:8000
+            Accept: application/x-yaml
+
+        **Example response:**
+
+        .. code-block:: text
+
+            HTTP/1.1 200 OK
+            Content-Length: 0
+            Content-Type: application/x-yaml
+
+        **Example request:**
+
+        .. code-block:: bash
+
+            curl -i localhost:8000/keys/jerry
+
+        .. code-block:: text
+
+            DELETE /keys/jerry HTTP/1.1
+            Host: localhost:8000
+            Accept: application/x-yaml
+
+        **Example response:**
+
+        .. code-block:: text
+
+            HTTP/1.1 200 OK
+            Content-Length: 0
+            Content-Type: application/x-yaml
+
+        '''
+
+        lowstate = [{
+            'client': 'wheel',
+            'fun': 'key.delete',
+            'match': mid,
+        }]
+
+        cherrypy.request.lowstate = lowstate
+        result = self.exec_lowstate(token=cherrypy.session.get('token'))
+
+        return {'return': next(result, {}).get('data', {}).get('return', {})}
+
 
 
 class Login(LowDataAdapter):
